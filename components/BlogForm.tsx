@@ -235,7 +235,7 @@ export default function BlogForm({
             id="picture"
             type="file"
             className={`mt-2 ${
-              errors.cover_url ? "bg-red-100 border-red-500" : ""
+              errors.cover_url ? "bg-white-100 border-red-500" : "bg-gray-200"
             }`}
             onChange={async (e) => {
               let files = (e.target as HTMLInputElement).files;
@@ -297,9 +297,10 @@ export default function BlogForm({
           classNamePrefix="select"
         />
       </div>
-      <div className="mt-4 text-right">
+      <div className="mt-4 flex justify-end text-right">
         <Button
           variant={"secondary"}
+          className="bg-white"
           onClick={() => {
             variant === "blog"
               ? router.push("/admin/blogs")
@@ -308,7 +309,7 @@ export default function BlogForm({
         >
           Cancel
         </Button>
-        <Button className="ml-5">
+        <Button className="ml-5 bg-white">
           {loading ? (
             <>
               <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
