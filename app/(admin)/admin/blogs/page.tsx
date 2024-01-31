@@ -1,6 +1,7 @@
 "use client"
 
-import DataTable from "@/components/table";
+
+import DataTable from "@/components/Table";
 import Link from "next/link";
 import { useEffect, useReducer } from "react";
 
@@ -22,7 +23,6 @@ export default function BlogPage() {
       loading: false,
       data: response.data
     })
-    console.log(response);
   }
 
   useEffect(()=> {
@@ -55,18 +55,8 @@ export default function BlogPage() {
    <>
       {response.data.length > 0 ? (
         <>
-        {response.data.map((d: {title : string, id: string, description: string}, i: any )=> (
-      <div className="mb-4" key={d.id}>
-            <Link 
-          href={`/admin/blogs/${d.id}`}
-          className="text-xl font-semibold text-blue-500"
-         >
-          {d?.title}
-          </Link>
-          <p>{d?.description ? d?.description: "No description..." }</p>
-      </div>
-        ))}
-        <DataTable />
+        <DataTable data={response.data}/>
+
         </>
       ) : (
         <h1>No Data Found!</h1>
