@@ -8,6 +8,6 @@ export default function() {
     const heading = pageNames.length > 2 ? pageNames[2] : pageNames[1]
     
     return (
-        <h1 className="text-lg text-gray-300 font-semibold capitalize">{heading}</h1>
+        <h1 className="text-lg text-gray-500 font-semibold capitalize">{heading}</h1>
     )
 }

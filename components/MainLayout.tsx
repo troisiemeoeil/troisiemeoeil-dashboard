@@ -48,18 +48,22 @@ export default async function MainLayout({children}: MainLayoutProps) {
    return redirect("/login")
   }
       return (
-        <main className="flex h-screen bg-black">
+        <main className="flex ">
         <SideNavigation />
         <section className="w-full">
-          <header className="p-3 fixed z-10 left-60 bg-black border-b right-0">
+          <header className="p-3 fixed z-10 left-60  border-b right-0">
             <div className="container flex justify-between items-center">
               <div>
                 <NavigationHeading />
               </div>
               <div className="flex gap-6 justify-center">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="bg-white" asChild>
-                    <Button variant={"outline"} className="bg-white text-white"><PlusIcon className="mr-2"/> Create</Button>
+                  <DropdownMenuTrigger  asChild>
+                      <div className="w-full flex items-center rounded-sm  bg-white  shadow-sm hover:bg-accent hover:text-accent-foreground">
+                    <Button variant={"custom"}>
+                      <PlusIcon className="mr-2"/> Create
+                    </Button>
+                      </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40 bg-white" align="end">
                     <Link href={"/admin/projects/create"}>
