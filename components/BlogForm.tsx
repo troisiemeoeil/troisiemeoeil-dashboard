@@ -9,18 +9,18 @@ import { Input } from "@/components/ui/input";
 import { useCallback, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
-import Select, { MultiValue, OptionProps } from "react-select";
-import { Textarea } from "@/components/ui/textarea";
+import Select from "react-select";
 import { useForm, SubmitHandler } from "react-hook-form";
-import check from  "@app/assets/check.png"
 
-
+import Image from "next/image";
 interface BlogFormProps {
   id: string,
   value: {
     title: string,
     description: string,
-    content: string
+    content: string,
+    tags: string[],
+    cover_url: string,
   }
 }
 
@@ -35,15 +35,61 @@ const [blogForm, setBlogForm] = useReducer((prev: any, next: any)=> {
   title : value?.title || "",
   content : value?.content || "",
   description : value?.description || "",
-})
-const [blogTitle, setBlogTitle] = useState("")  
-const [blogContent, setBlogContent] = useState("")  
+  tags: value?.tags || [],
+  cover_url: value?.cover_url || [],
 
+})
+
+const blogTags = [
+  {
+    label: "Database",
+    value: "Database",
+    name: "Database"
+  }, 
+  {
+    label: "Business Technology",
+    value: "Business Technology",
+    name: "Business Technology"
+  },
+  {
+    label: "T3 Stack",
+    value: "T3 Stack",
+    name: "T3 Stack"
+  }
+]
+
+const getDefaultValues = (value: string[]) => {
+  if (value.length > 0) {
+    return value.map((v) => {
+      return {
+        label: v,
+        name: v,
+        value: v,
+      }
+    })
+  }
+  return []
+}
+
+const uploadCoverImage = async (e: EventTarget) => {
+  const file = e.target.files[0] 
+  const response = await fetch(`/api/upload`, {
+    method: "POST",
+    headers: {
+      "Content-type": file.type,
+      "X-Vercel-Filename": file.name
+    },
+    body: JSON.stringify(blogForm) 
+  }).then((res) => res.json())
+
+  setBlogForm({
+    cover_url : response.url
+  })
+
+}
 
 const updateContent = useCallback((data: editorProps) => {
-  
   setBlogForm({content: data.getJSON()})
-
 }, [])
 
 const onSubmit = async () => {
@@ -66,9 +112,6 @@ const onSubmit = async () => {
       body: JSON.stringify(blogForm) 
     })
   }
-  
-
-
   const response = await req.json()
 
   if (response?.data?.id) {
@@ -113,8 +156,7 @@ const onSubmit = async () => {
     // 
   }
 
-  console.log(blogTitle, blogContent);
-  
+
 }
   return (
     <>
@@ -146,6 +188,22 @@ const onSubmit = async () => {
 
 
       <div className="mt-5">
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+      <Label htmlFor="picture">Cover</Label>
+      <div className="max-w-[800px] ">
+        {blogForm.cover_url && (
+         <img src={blogForm.cover_url} alt="article cover image" className="w-full h-auto rounded-md" />
+        )}
+    
+      </div>
+      <Input id="picture" type="file"
+        onChange={uploadCoverImage}
+      />
+      </div>
+      </div>
+
+
+      <div className="mt-5">
       <Label htmlFor="content">Content</Label>
       <Editor
       editorProps={{}}
@@ -154,6 +212,22 @@ const onSubmit = async () => {
       disableLocalStorage
       className="border rounded pb-8 mt-2"
       />
+      </div>
+
+      <div className="mt-5">
+      <Label htmlFor="content">Tags</Label>
+      <Select
+      defaultValue={getDefaultValues(blogForm.tags)}
+      isMulti
+      name="tags"
+      options={blogTags}
+      onChange={(value: { name: string }) => {
+        const tags = value.map((v: { name: string }) => v?.name);
+        setBlogForm({ tags: tags });
+        }}
+        className="basic-multi-select"
+        classNamePrefix="select"
+  />
       </div>
 
       <div className="mt-4 text-right">
