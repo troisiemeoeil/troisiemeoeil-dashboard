@@ -15,19 +15,26 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import check from  "@app/assets/check.png"
 
 
+interface BlogFormProps {
+  id: string,
+  value: {
+    title: string,
+    description: string,
+    content: string
+  }
+}
 
 
-
-export default function BlogForm({id}: {id : string}) {
+export default function BlogForm({id, value}: BlogFormProps) {
   const router = useRouter()
 
 
 const [blogForm, setBlogForm] = useReducer((prev: any, next: any)=> {
   return {...prev, ...next};
 }, {
-  title : "",
-  content : "",
-  description : "",
+  title : value?.title || "",
+  content : value?.content || "",
+  description : value?.description || "",
 })
 const [blogTitle, setBlogTitle] = useState("")  
 const [blogContent, setBlogContent] = useState("")  
@@ -40,13 +47,27 @@ const updateContent = useCallback((data: editorProps) => {
 }, [])
 
 const onSubmit = async () => {
-  const req = await fetch("/api/blogs", {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json"
-    },
-    body: JSON.stringify(blogForm) 
-  })
+  let req
+  if (id) {
+     req = await fetch(`/api/blogs?id=${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(blogForm) 
+    })
+  }
+  else {
+     req = await fetch("/api/blogs", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(blogForm) 
+    })
+  }
+  
+
 
   const response = await req.json()
 
@@ -78,7 +99,9 @@ const onSubmit = async () => {
           <button
             onClick={() => {
               toast.dismiss(t.id)
-              router.push("/admin/blogs")
+              setTimeout(()=> {
+                router.push("/admin/blogs")
+              },1000)
             }}
             className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >

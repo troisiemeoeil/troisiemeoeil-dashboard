@@ -26,7 +26,7 @@ import {
 import Link from "next/link"
 import { useState } from "react";
 export default function DataTable({data }: any) {
-    const [articles, setArticles] = useState(data);
+const [articles, setArticles] = useState(data);
 
 
  const deleteArticle = async (id: string) => {

@@ -5,6 +5,8 @@ import DataTable from "@/components/Table";
 import Link from "next/link";
 import { useEffect, useReducer } from "react";
 
+
+
 export default function BlogPage() {
   const [response, setResponse] = useReducer((prev: any, next: any)=> {
     return {...prev, ...next}
