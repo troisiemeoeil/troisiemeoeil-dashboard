@@ -6,6 +6,7 @@ import {
   } from "@/components/ui/avatar"
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil2Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { Badge } from "@/components/ui/badge"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -69,7 +70,7 @@ const [articles, setArticles] = useState(data);
         </thead>
         <tbody>
      {
-           articles.map((d: {title : string, id: string, description: string}) => (
+           articles.map((d: {title : string, id: string, description: string, tags: string[]}) => (
             <tr className="bg-white border-b hover:bg-gray-100 " key={d?.id}>
                 <th scope="row" className="px-6 py-4 flex ml-6 font-medium text-gray-900  whitespace-nowrap ">
                 <Avatar className="cursor-pointer">
@@ -91,7 +92,15 @@ const [articles, setArticles] = useState(data);
 
                 </td>
                 <td className="px-6 py-4">
-                    $2999
+                {d?.tags ? (
+                    d?.tags.map((i: any) => (
+                      <Badge className="mx-1" key={i}>
+                        {i}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p>No tags available</p>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-right">
 
