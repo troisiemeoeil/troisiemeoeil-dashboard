@@ -14,7 +14,7 @@ export default function BlogPage() {
   })
 
 
-  const fetchBlogs =async () => {
+  const fetchBlogs = async () => {
     const res = await fetch("/api/blogs", {
       method: "GET"
     })

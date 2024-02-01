@@ -33,12 +33,12 @@ export async function POST(request: Request) {
 //     return NextResponse.json(response)  
 // }
 
-// export async function DELETE(request: Request) {
-//     const cookieStore = cookies();
-//     const supabase = createClient(cookieStore);
-//     const data = await request.json();
+export async function DELETE(request: Request) {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+    const data = await request.json();
     
-//     const response = await supabase.from("blogs").delete().eq('id', data.id);
+    const response = await supabase.from("blogs").delete().eq('id', data.id);
 
-//     return NextResponse.json(response) 
-// }
+    return NextResponse.json(response) 
+}
