@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { RocketIcon, ReaderIcon, HomeIcon } from '@radix-ui/react-icons'
+import { RocketIcon, ReaderIcon, HomeIcon, DashboardIcon } from '@radix-ui/react-icons'
 import { usePathname } from "next/navigation";
 
 export default function SideNavigation() {
@@ -19,8 +19,8 @@ export default function SideNavigation() {
         <ul>
             <li className="mb-2">
                 <Link href={"/admin"} className={`${path === "/admin" ? 'bg-gray-100' : ''} hover:bg-gray-100 px-3 py-2 rounded text-gray-400 font-semibold hover:text-gray-800 transition duration-200 ease-in-out flex items-center gap-2`}>
-                    <HomeIcon />
-                    Home
+                    <DashboardIcon />
+                    Dashboard
                 </Link>
             </li>
             <li className="mb-2">

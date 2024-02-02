@@ -26,12 +26,12 @@ import {
   import {Button} from "@/components/ui/button"
 import Link from "next/link"
 import { useState } from "react";
-export default function DataTable({data }: any) {
+export default function DataTable({data, variant }: any) {
 const [articles, setArticles] = useState(data);
 
 
  const deleteArticle = async (id: string) => {
-    const res = await fetch("/api/blogs", {
+    const res = await fetch(`/api/${variant}`, {
         method: "DELETE", 
         headers: {
             "Content-type" : "application/json"
@@ -64,19 +64,23 @@ const [articles, setArticles] = useState(data);
                     Tags
                 </th>
                 <th scope="col" className="px-6 py-3">
+                    Author
+                </th>
+                <th scope="col" className="px-6 py-3">
                     <span className="sr-only">Edit</span>
                 </th>
             </tr>
         </thead>
         <tbody>
      {
-           articles.map((d: {title : string, id: string, description: string, tags: string[]}) => (
+           articles.map((d: {title : string, id: string, description: string, tags: string[], author: string, cover_url: string}) => (
             <tr className="bg-white border-b hover:bg-gray-100 " key={d?.id}>
                 <th scope="row" className="px-6 py-4 flex ml-6 font-medium text-gray-900  whitespace-nowrap ">
                 <Avatar className="cursor-pointer">
                       <AvatarImage
-                        src="https://github.com/shadcn.png"
+                        src={d?.cover_url||"https://github.com/shadcn.png" }
                         alt="@shadcn"
+                        style={{width:"100%", height: "100%"}}
                       />
                       <AvatarFallback>
                         {d?.title}
@@ -87,14 +91,14 @@ const [articles, setArticles] = useState(data);
                                        {d?.title}
 
                 </td>
-                <td className="px-6 py-4 capitalize">
+                <td className="px-6 py-4 capitalize w-[20rem]">
                 {d?.description ? d?.description : "No available description"}
 
                 </td>
                 <td className="px-6 py-4">
                 {d?.tags ? (
                     d?.tags.map((i: any) => (
-                      <Badge className="mx-1" key={i}>
+                      <Badge className="m-1" key={i}>
                         {i}
                       </Badge>
                     ))
@@ -102,20 +106,24 @@ const [articles, setArticles] = useState(data);
                     <p>No tags available</p>
                   )}
                 </td>
+                <td className="px-6 py-4 capitalize">
+                {d?.author ? d?.author : "TROISIEME OEIL DIGITAL"}
+
+                </td>
                 <td className="px-6 py-4 text-right">
 
                 <DropdownMenu>
                   <DropdownMenuTrigger  asChild>
                       <div className="w-[50%] flex items-center rounded  bg-white  shadow-sm hover:bg-accent hover:text-accent-foreground">
                     <Button variant={"custom"} className="w-full">
-                 •••
+                       •••
                     </Button>
                       </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40 bg-white" align="end">
                    
                       <Link
-                            href={`/admin/blogs/${d.id}`}
+                            href={`/admin/${variant}/${d.id}`}
                             className="font-medium text-gray-400 w-full flex items-center gap-1 "
                             >
                                 <Button variant={"ghost"} className=" hover:bg-gray-200 w-full flex justify-start">

@@ -51,7 +51,7 @@ export default async function MainLayout({children}: MainLayoutProps) {
         <main className="flex ">
         <SideNavigation />
         <section className="w-full">
-          <header className="p-3 fixed z-10 left-60  border-b right-0">
+          <header className="p-3 fixed bg-white z-10 left-60  border-b right-0">
             <div className="container flex justify-between items-center">
               <div>
                 <NavigationHeading />

@@ -57,7 +57,7 @@ export default function BlogPage() {
    <>
       {response.data.length > 0 ? (
         <>
-        <DataTable data={response.data}/>
+        <DataTable data={response.data} variant="blogs"/>
 
         </>
       ) : (
