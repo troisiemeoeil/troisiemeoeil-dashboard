@@ -12,8 +12,13 @@ export async function POST(request: Request){
     const fileName = header.get("X-Vercel-Filename");
 
     if(fileName) {
-        await supabase.storage.from(bucketName).upload(fileName, file);
-        const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);       
+        await supabase.storage.from(bucketName).upload(fileName, file, {
+            cacheControl: '300', // The image will be cached for 5 minutes
+            upsert: false
+          });
+
+        const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
+
         return NextResponse.json({
             url: data.publicUrl
         })

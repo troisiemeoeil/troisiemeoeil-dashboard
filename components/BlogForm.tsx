@@ -4,317 +4,324 @@ import { Editor, editorProps } from "novel";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input";
 import { useCallback, useReducer, useState } from "react";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from 'react-hot-toast';
-import Select from "react-select";
+import Select, { MultiValue, OptionProps } from "react-select";
+import { Textarea } from "@/components/ui/textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-type Variants = 'blogs' | 'projects'
+type Variants = "blog" | "project";
+
+type Inputs = {
+  title: string;
+  content: string;
+  description: string;
+  tags: number;
+  cover_url: string;
+};
 
 interface BlogFormProps {
-  id?: string,
-  variant?: Variants,
-  value?: {
-    title: string,
-    description: string,
-    content: string,
-    tags: string[],
-    cover_url: string,
-    author: string,
-  }
+  id?: string;
+  variant?: Variants;
+  value?: Inputs;
 }
 
-
-export default function BlogForm({id, value, variant = 'blogs'}: BlogFormProps) {
-  const router = useRouter()
-  const thummbnailImage = "https://onkeenjmkuvoigdvczqk.supabase.co/storage/v1/object/public/troisiemeoeil-bucket/opengraph-image%20(1).png"
-
-const [blogForm, setBlogForm] = useReducer((prev: any, next: any)=> {
-  return {...prev, ...next};
-}, {
-  title : value?.title || "",
-  content : value?.content || "",
-  description : value?.description || "",
-  tags: value?.tags || [],
-  cover_url: value?.cover_url || thummbnailImage,
-  author: "TROISIEME OEIL DIGITAL"
-
-})
-
-const blogTags = [
+const blogsTags = [
   {
-    label: "Database",
-    value: "Database",
-    name: "Database"
-  }, 
-  {
-    label: "Business Technology",
-    value: "Business Technology",
-    name: "Business Technology"
+    label: "HTML",
+    value: "HTML",
+    name: "HTML",
   },
   {
-    label: "T3 Stack",
-    value: "T3 Stack",
-    name: "T3 Stack"
-  }
-]
+    label: "CSS",
+    value: "CSS",
+    name: "CSS",
+  },
+  {
+    label: "JavaScript",
+    value: "JavaScript",
+    name: "JavaScript",
+  },
+];
 
-const getDefaultValues = (value: string[]) => {
+const getDefaultValue = (value: string[]) => {
   if (value.length > 0) {
     return value.map((v) => {
       return {
         label: v,
         name: v,
         value: v,
-      }
-    })
+      };
+    });
   }
-  return []
-}
 
-const uploadCoverImage = async (e: EventTarget) => {
-  const file = e.target.files[0] 
-  const response = await fetch(`/api/upload`, {
-    method: "POST",
-    headers: {
-      "Content-type": file.type,
-      "X-Vercel-Filename": file.name
+  return [];
+};
+
+export default function BlogForm({
+  id,
+  value,
+  variant = "blog",
+}: BlogFormProps) {
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue
+  } = useForm<Inputs>({
+    defaultValues: {
+      title: value?.title || "",
+      description: value?.description || "",
+      cover_url: value?.cover_url || ""
+    }
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [blogForm, setBlogForm] = useReducer(
+    (prev: any, next: any) => {
+      return { ...prev, ...next };
     },
-    body: JSON.stringify(blogForm) 
-  }).then((res) => res.json())
+    {
+      title: value?.title || "",
+      content: value?.content || "",
+      description: value?.description || "",
+      tags: value?.tags || [],
+      cover_url: value?.cover_url || "",
+    }
+  );
 
-  setBlogForm({
-    cover_url : response.url
-  })
+  const updateContent = useCallback((data: editorProps) => {
+    setBlogForm({ content: data.getJSON() });
+  }, []);
 
-}
+  const onSubmitBlog: SubmitHandler<Inputs> = async (data) => {
+    let req;
+    const blogData = {
+      title: data?.title || "",
+      content: blogForm?.content || "",
+      description: data?.description || "",
+      tags: blogForm?.tags || [],
+      cover_url: blogForm?.cover_url || "",
+    }
 
-const updateContent = useCallback((data: editorProps) => {
-  setBlogForm({content: data.getJSON()})
-}, [])
+    setLoading(true);
 
-const onSubmitBlog = async () => {
-  let req
-  if (id) {
-     req = await fetch(`/api/blogs?id=${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(blogForm) 
-    })
-  }
-  else {
-     req = await fetch("/api/blogs", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(blogForm) 
-    })
-  }
-  const response = await req.json()
+    if (id) {
+      req = await fetch(`/api/blogs?id=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Contet-type": "application/json",
+        },
+        body: JSON.stringify(blogData),
+      });
+    } else {
+      req = await fetch("/api/blogs", {
+        method: "POST",
+        headers: {
+          "Contet-type": "application/json",
+        },
+        body: JSON.stringify(blogData),
+      });
+    }
 
-  if (response?.data?.id) {
-    toast.custom((t) => (
-      <div
-        className={`${
-          t.visible ? 'animate-enter' : 'animate-leave'
-        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-      >
-        <div className="flex-1 w-0 p-4">
-          <div className="flex items-center ">
-          <div className="flex-shrink-0 ">
-            <Avatar  className="p-1">
-              <AvatarImage src="https://onkeenjmkuvoigdvczqk.supabase.co/storage/v1/object/sign/troisiemeoeil-bucket/check2.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJ0cm9pc2llbWVvZWlsLWJ1Y2tldC9jaGVjazIucG5nIiwiaWF0IjoxNzA2NzI1OTU2LCJleHAiOjQ5MDEwNzI1OTU2fQ.XA7p1TvuhMUccHlq38D7Ku1tKk1jSCwbYAK99VPbLVE&t=2024-01-31T18%3A32%3A30.480Z" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            </div>
-           
-            <div className="ml-3 flex-1">
-              <p className="text-md font-medium text-gray-900">
-                Article was Successfully published
-              </p>
-             
-            </div>
-          </div>
-        </div>
-        <div className="flex border-l border-gray-200">
-          <button
-            onClick={() => {
-              toast.dismiss(t.id)
-              setTimeout(()=> {
-                router.push("/admin/blogs")
-              },1000)
-            }}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            See All
-          </button>
-        </div>
-      </div>
-    ))
-    // 
-  }
+    const response = await req.json();
 
+    setLoading(false);
 
-}
+    if (response?.data?.id) {
+      router.push("/admin/blogs");
+    }
+  };
 
-const onSubmitProjects = async () => {
-  let req
-  if (id) {
-     req = await fetch(`/api/projects?id=${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(blogForm) 
-    })
-  }
-  else {
-     req = await fetch("/api/projects", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(blogForm) 
-    })
-  }
-  const response = await req.json()
+  const onSubmitProject: SubmitHandler<Inputs> = async (data) => {    
+    let req;
 
-  if (response?.data?.id) {
-    toast.custom((t) => (
-      <div
-        className={`${
-          t.visible ? 'animate-enter' : 'animate-leave'
-        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-      >
-        <div className="flex-1 w-0 p-4">
-          <div className="flex items-center ">
-          <div className="flex-shrink-0 ">
-            <Avatar  className="p-1">
-              <AvatarImage src="https://onkeenjmkuvoigdvczqk.supabase.co/storage/v1/object/sign/troisiemeoeil-bucket/check2.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJ0cm9pc2llbWVvZWlsLWJ1Y2tldC9jaGVjazIucG5nIiwiaWF0IjoxNzA2NzI1OTU2LCJleHAiOjQ5MDEwNzI1OTU2fQ.XA7p1TvuhMUccHlq38D7Ku1tKk1jSCwbYAK99VPbLVE&t=2024-01-31T18%3A32%3A30.480Z" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            </div>
-           
-            <div className="ml-3 flex-1">
-              <p className="text-md font-medium text-gray-900">
-                Project was Successfully published
-              </p>
-             
-            </div>
-          </div>
-        </div>
-        <div className="flex border-l border-gray-200">
-          <button
-            onClick={() => {
-              toast.dismiss(t.id)
-              setTimeout(()=> {
-                router.push("/admin/projects")
-              },1000)
-            }}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            See All
-          </button>
-        </div>
-      </div>
-    ))
-    // 
-  }
+    const ProjectData = {
+      title: data?.title || "",
+      content: blogForm?.content || "",
+      description: data?.description || "",
+      tags: blogForm?.tags || [],
+      cover_url: blogForm?.cover_url || "",
+    }
 
+    setLoading(true);
 
-}
+    if (id) {
+      req = await fetch(`/api/projects?id=${id}`, {
+        method: "PATCH",
+        headers: {
+          "Contet-type": "application/json",
+        },
+        body: JSON.stringify(ProjectData),
+      });
+    } else {
+      req = await fetch("/api/projects", {
+        method: "POST",
+        headers: {
+          "Contet-type": "application/json",
+        },
+        body: JSON.stringify(ProjectData),
+      });
+    }
 
+    const response = await req.json();
+
+    setLoading(false);
+
+    if (response?.data?.id) {
+      router.push("/admin/projects");
+    }
+  };
 
   return (
-    <>
-     <Toaster />
+    <form
+      onSubmit={handleSubmit(
+        variant === "blog" ? onSubmitBlog : onSubmitProject
+      )}
+    >
       <div>
-        <Label htmlFor="title" className=" capitalize">{variant} Title</Label>
-        <Input 
+        <Label htmlFor="email" className="capitalize">
+          {variant} Title
+        </Label>
+        <Input
           type="text"
-          placeholder="Insert the article title here"
-          value={blogForm.title}
-          onChange={(e)=> {
-            setBlogForm({title: e.target.value})
-          }}
+          {...register("title", { required: true })}
+          placeholder="Title"
+          className={`mt-2 ${
+            errors.title ? "bg-red-100 border-red-500" : ""
+          }`}
         />
-      </div>
-
-
-      <div className="mt-5">
-        <Label htmlFor="description" className=" capitalize">{variant} Description</Label>
-        <Input 
-          type="text"
-          placeholder="Insert the article description here"
-          value={blogForm.description}
-          onChange={(e)=> {
-            setBlogForm({description: e.target.value})
-          }}
-        />
-      </div>
-
-
-      <div className="mt-5">
-      <div className="grid w-full max-w-sm items-center gap-1.5">
-      <Label htmlFor="picture" className=" capitalize">{variant} Cover</Label>
-      <div className="max-w-[800px] ">
-        {blogForm.cover_url && (
-         <img src={blogForm.cover_url} alt="article cover image" className="w-full h-auto rounded-md" />
+        {errors.title && (
+          <span className="text-sm mt-1 text-red-500">
+            This field is required
+          </span>
         )}
-    
       </div>
-      <Input id="picture" type="file"
-        onChange={uploadCoverImage}
-      />
-      </div>
-      </div>
-
-
       <div className="mt-5">
-      <Label htmlFor="content" className=" capitalize"> {variant} Content</Label>
-      <Editor
-      editorProps={{}}
-      onDebouncedUpdate={updateContent}
-      defaultValue={blogForm.content}
-      disableLocalStorage
-      className="border rounded pb-8 mt-2"
-      />
+        <Label htmlFor="description" className="capitalize">
+          {variant} Description
+        </Label>
+        <Textarea
+          placeholder="Description"
+          {...register("description", { required: true })}
+          className={`mt-2 ${
+            errors.description ? "bg-red-100 border-red-500" : ""
+          }`}
+        />
+        {errors.description && (
+          <span className="text-sm mt-1 text-red-500">
+            This field is required
+          </span>
+        )}
       </div>
-
       <div className="mt-5">
-      <Label htmlFor="tags" className=" capitalize">{variant} Tags</Label>
-      <Select
-      defaultValue={getDefaultValues(blogForm.tags)}
-      isMulti
-      name="tags"
-      options={blogTags}
-      onChange={(value: { name: string }) => {
-        const tags = value.map((v: { name: string }) => v?.name);
-        setBlogForm({ tags: tags });
-        }}
-        className="basic-multi-select"
-        classNamePrefix="select"
-  />
-      </div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label htmlFor="picture" className="capitalize">
+            {variant} Cover Image
+          </Label>
+          <div className="max-w-[120px]">
+            {blogForm.cover_url && (
+              <img
+                src={blogForm.cover_url}
+                className="w-full h-auto rounded-md"
+              />
+            )}
+          </div>
+          <input type="hidden" value={blogForm.cover_url} {...register("cover_url", { required: true })}/>
+          <Input
+            id="picture"
+            type="file"
+            className={`mt-2 ${
+              errors.cover_url ? "bg-red-100 border-red-500" : ""
+            }`}
+            onChange={async (e) => {
+              let files = (e.target as HTMLInputElement).files;
 
+              if (files && files?.length > 0) {
+                const file = files[0];
+                const response = await fetch("/api/upload", {
+                  method: "POST",
+                  headers: {
+                    "Content-type": file.type,
+                    "X-Vercel-Filename": file.name,
+                  },
+                  body: file,
+                }).then((res) => res.json());
+
+                setBlogForm({
+                  cover_url: response.url,
+                });
+                setValue("cover_url", response.url)
+              }
+            }}
+          />
+          {errors.cover_url && (
+            <span className="text-sm mt-1 text-red-500">
+              This field is required
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="mt-5">
+        <Label htmlFor="content" className="capitalize">
+          {variant} Content
+        </Label>
+        <Editor
+          editorProps={{}}
+          onDebouncedUpdate={updateContent}
+          defaultValue={blogForm.content}
+          className="border rounded pb-8 mt-2"
+          disableLocalStorage
+        />
+      </div>
+      <div className="mt-4">
+        <Label htmlFor="content" className="capitalize">
+          {variant} Tags
+        </Label>
+        <Select
+          defaultValue={getDefaultValue(blogForm.tags)}
+          isMulti
+          name="tags"
+          options={blogsTags}
+          onChange={(value: MultiValue<{ name: string }>) => {
+            if (value && value.length > 0) {
+              const tags = value.map((v: { name: string }) => v?.name);
+
+              setBlogForm({ tags: tags });
+            }
+          }}
+          className="basic-multi-select"
+          classNamePrefix="select"
+        />
+      </div>
       <div className="mt-4 text-right">
-        <Button variant={"secondary"} onClick={()=> {
-          router.push(`/admin/${variant}`)
-        }}>Cancel</Button>
-        <Button className="ml-5" onClick={()=> {
-            variant === 'blogs' ? onSubmitBlog() : onSubmitProjects()
-        }}>
-          <CheckIcon className="mr-2 " />
-          Save
+        <Button
+          variant={"secondary"}
+          onClick={() => {
+            variant === "blog"
+              ? router.push("/admin/blogs")
+              : router.push("/admin/projects");
+          }}
+        >
+          Cancel
         </Button>
-
+        <Button className="ml-5">
+          {loading ? (
+            <>
+              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              Please wait
+            </>
+          ) : (
+            <>
+              <CheckIcon className="mr-2" />
+              Save
+            </>
+          )}
+        </Button>
       </div>
-    </>
+    </form>
   );
 }
