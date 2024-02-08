@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Select, { MultiValue, OptionProps } from "react-select";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
+import slugify from 'slugify'; // Import slugify library
 
 type Variants = "blog" | "project";
 
@@ -19,6 +20,7 @@ type Inputs = {
   description: string;
   tags: number;
   cover_url: string;
+  slug_url: string;
 };
 
 interface BlogFormProps {
@@ -75,7 +77,8 @@ export default function BlogForm({
     defaultValues: {
       title: value?.title || "",
       description: value?.description || "",
-      cover_url: value?.cover_url || ""
+      cover_url: value?.cover_url || "",
+      slug_url: value?.slug_url || ""
     }
   });
 
@@ -90,12 +93,21 @@ export default function BlogForm({
       description: value?.description || "",
       tags: value?.tags || [],
       cover_url: value?.cover_url || "",
+      slug_url: value?.slug_url || "",
     }
   );
 
   const updateContent = useCallback((data: editorProps) => {
     setBlogForm({ content: data.getJSON() });
   }, []);
+
+  const createSlug = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const title = event.target.value;
+    const slug = slugify(title, { lower: true }); // Generate slug from title
+    console.log("Generated Slug:", slug);
+    setBlogForm({ slug_url: slug }); // Set the slug in the form state
+  };
+  
 
   const onSubmitBlog: SubmitHandler<Inputs> = async (data) => {
     let req;
@@ -105,8 +117,10 @@ export default function BlogForm({
       description: data?.description || "",
       tags: blogForm?.tags || [],
       cover_url: blogForm?.cover_url || "",
-    }
+      slug_url: blogForm?.slug_url,
 
+    }
+    console.log("Blog Data:", blogData);
     setLoading(true);
 
     if (id) {
@@ -136,6 +150,9 @@ export default function BlogForm({
     }
   };
 
+  
+
+
   const onSubmitProject: SubmitHandler<Inputs> = async (data) => {    
     let req;
 
@@ -145,6 +162,8 @@ export default function BlogForm({
       description: data?.description || "",
       tags: blogForm?.tags || [],
       cover_url: blogForm?.cover_url || "",
+      slug_url: blogForm?.slug_url,
+      
     }
 
     setLoading(true);
@@ -189,6 +208,7 @@ export default function BlogForm({
         <Input
           type="text"
           {...register("title", { required: true })}
+          onChange={createSlug}
           placeholder="Title"
           className={`mt-2 ${
             errors.title ? "bg-red-100 border-red-500" : ""
