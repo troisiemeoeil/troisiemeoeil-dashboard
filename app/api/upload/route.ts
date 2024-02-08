@@ -13,7 +13,7 @@ export async function POST(request: Request){
 
     if(fileName) {
         await supabase.storage.from(bucketName).upload(fileName, file, {
-            cacheControl: '300', // The image will be cached for 5 minutes
+            cacheControl: '10', // The image will be cached for 5 minutes
             upsert: false
           });
 
