@@ -2,8 +2,11 @@
 
 
 import DataTable from "@/components/Table";
+import { Input } from "@/components/ui/input";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
+import debounce from "lodash.debounce"
 
 
 
@@ -12,12 +15,14 @@ export default function BlogPage() {
     return {...prev, ...next}
   }, {
     data: [],
-    loading: true
+    loading: true,
+    searchTerm: "",
+
   })
 
 
-  const fetchBlogs = async () => {
-    const res = await fetch("/api/blogs", {
+  const fetchBlogs = async (value: string = "") => {
+    const res = await fetch(`/api/blogs?term=${value}`, {
       method: "GET"
     })
     const response = await res.json()
@@ -32,6 +37,14 @@ export default function BlogPage() {
     fetchBlogs()
 
   }, [])
+  const searchTerm = (e: HTMLInputElement) => {
+    setResponse({searchTerm: e.target.value})
+    debounceAPI(e.target.value)
+  }
+  
+  const debounceAPI = useCallback(debounce((value: string)=> {
+    fetchBlogs(value), 10
+  }), [])
 
   if(response.loading) {
     return (
@@ -55,9 +68,17 @@ export default function BlogPage() {
   }
   return (
    <>
+      <div className="flex mb-8">
+      <div className="relative">
+        
+        <MagnifyingGlassIcon className="absolute top-2.5 left-2 text-gray-400"/>
+      <Input type="text" placeholder="Search Articles" className="pl-6" onChange={searchTerm} />
+      </div>
+      <div></div>
+    </div>
       {response.data.length > 0 ? (
         <>
-        <DataTable data={response.data} variant="blogs"/>
+        <DataTable data={response.data} variant={"projects"}/>
 
         </>
       ) : (
