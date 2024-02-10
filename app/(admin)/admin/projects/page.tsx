@@ -37,15 +37,14 @@ export default function ProjectsPage() {
     fetchProjects()
 
   }, [])
-    
-  const debounceAPI = useCallback(debounce((value: string)=> {
-    fetchProjects(value), 10
-  }), [])
   const searchTerm = (e: HTMLInputElement) => {
     setResponse({searchTerm: e.target.value})
     debounceAPI(e.target.value)
   }
-
+  
+  const debounceAPI = useCallback(debounce((value: string)=> {
+    fetchProjects(value), 10
+  }), [])
 
   if(response.loading) {
     return (
