@@ -78,7 +78,7 @@ export default function BlogPage() {
     </div>
       {response.data.length > 0 ? (
         <>
-        <DataTable data={response.data} variant={"projects"}/>
+        <DataTable data={response.data} variant={"blogs"}/>
 
         </>
       ) : (

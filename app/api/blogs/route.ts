@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     response = await supabase.from("blogs").select().eq("id", id).single()
     }
     else {
-        response = await supabase.from("blogs").select().ilike('title', `%${term}%`).limit(5)
+        response = await supabase.from("blogs").select().ilike('title', `%${term}%`)
 
     }
     // const data = await request.json();
